@@ -30,7 +30,7 @@ QVariant ImageViewerModel::data(const QModelIndex &index, int role) const
         return QVariant(img.fileName);
         break;
     case FullPathRole:
-        return QVariant(img.fileName);
+        return QVariant(img.fullPath);
         break;
     }
 
@@ -50,16 +50,15 @@ void ImageViewerModel::setImageViewer(ImageViewer *newImageViewer)
 
     m_imageViewer = newImageViewer;
     if(m_imageViewer){
-//        connect(m_imageViewer, &ImageViewer::imageUpdated, this,
-//                                      [=](){
-//            const int index = m_imageViewer->images().size();
-//            beginInsertRows(QModelIndex(), index,index);
-//        });
+        connect(m_imageViewer, &ImageViewer::preImagesListUpdated, this,
+                                      [=](){
+            const int index = m_imageViewer->images().size();
+            beginInsertRows(QModelIndex(), index, index);
+        });
 
         connect(m_imageViewer, &ImageViewer::imagesListUpdated, this,
                                       [=](){
-            const int index = m_imageViewer->images().size();
-            beginInsertRows(QModelIndex(), index,index);
+            endInsertRows();
         });
     }
 

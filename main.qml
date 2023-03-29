@@ -17,39 +17,64 @@ ApplicationWindow  {
     title: qsTr("Hello world")
 
 
+    Image {
+        id: i_viewedImage
+        anchors.fill: parent
+        asynchronous: true
+        fillMode: Image.PreserveAspectFit
+    }
+
+
+    Component.onCompleted: {
+        mimageViewer.postImageUpdated.connect(onImageUpdated);
+    }
+
+    function onImageUpdated(value){
+        i_viewedImage.source = value;
+    }
+
     menuBar: MenuBar {
-        Menu {
+        Menu{
             title: qsTr("&File")
             MenuItem {
                 text: qsTr("&Open...")
                 icon.name: "document-open"
                 onTriggered: fd_imageOpenDialog.open()
             }
-        }
+            MenuSeparator{}
+            Menu{
+                id: recentFiles
+                title: qsTr("&Recent files")
+                enabled : i_recentFilesMenuInstantiator.count > 0
 
+                Instantiator{
+                    id: i_recentFilesMenuInstantiator
 
+                    model: ImageViewerModel{
+                        imageViewer: mimageViewer
+                    }
 
-        Menu{
-            id: recentFiles
-            title: qsTr("&Recent files")
+                    delegate: MenuItem{
+                        text: model.fileName
+                        onTriggered: mimageViewer.openImage(index)
+                    }
 
-
-            Instantiator{
-                model: ImageViewerModel{
-                    imageViewer: mimageViewer
+                    onObjectAdded: recentFiles.insertItem(index, object)
+                    onObjectRemoved: recentFilesSubMenu.removeItem(object)
                 }
-
-                delegate: MenuItem{
-                    text: model.fileName
-                }
-
-                onObjectAdded: recentFiles.insertItem(index, object)
-                onObjectRemoved: recentFilesSubMenu.removeItem(object)
             }
-
-
         }
+    }
 
+
+    FileDialog{
+        id: fd_imageOpenDialog
+        title: "Select image file"
+        currentFolder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        nameFilters: [
+            "Image files (*.png *.jpeg *.jpg)",
+        ]
+        onAccepted: mimageViewer.openNewImage(currentFile)
     }
 }
 

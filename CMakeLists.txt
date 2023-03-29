@@ -13,6 +13,7 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Quick)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick)
 
 set(PROJECT_SOURCES
+        saver.h saver.cpp
         imageviewermodel.h imageviewermodel.cpp
         imageviewer.h imageviewer.cpp
         main.cpp

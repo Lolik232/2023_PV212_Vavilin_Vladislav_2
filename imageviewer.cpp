@@ -1,7 +1,14 @@
 #include "imageviewer.h"
+#include "qdebug.h"
 
 ImageViewer::ImageViewer(QObject *parent)
     : QObject{parent}
+{
+
+}
+
+ImageViewer::ImageViewer(std::vector<Image> images, QObject *parent)
+  : QObject{parent}, m_images(images)
 {
 
 }
@@ -15,19 +22,23 @@ void ImageViewer::openImage(int index)
 {
     auto& img = m_images.at(index);
 
-
     if(currentImage != &img){
         currentImage = &img;
-        emit imageUpdated();
+        emit postImageUpdated(currentImage->fullPath);
     }
 }
 
-void ImageViewer::openNewImage(Image img)
+void ImageViewer::openNewImage(QString path)
 {
+    Image img(path);
+    emit preImagesListUpdated();
+    qDebug() << "Image openned";
+
     m_images.push_back(img);
-    emit imagesListUpdated();
+    emit imagesListUpdated(img);
 
     // image setter
-    currentImage = &m_images.back();
     emit imageUpdated();
+    currentImage = &m_images.back();
+    emit postImageUpdated(currentImage->fullPath);
 }
